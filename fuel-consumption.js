@@ -1,6 +1,6 @@
 // vehicleService.js
 
-export default function FuelConsumptionAPI(db) {
+export default function FuelConsumption(db) {
 
     async function addVehicle({ description, regNumber }) {
 

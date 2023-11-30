@@ -1,21 +1,21 @@
 import FuelConsumption from '../fuel-consumption.js';
 import pgPromise from 'pg-promise';
 import assert from 'assert';
+import dotenv from "dotenv";
+dotenv.config()
 
 const pgp = pgPromise();
-const DATABASE_URL=  "postgresql://fuel:fuel@localhost:5432/fuel_consumption";
 
-const config = { 
-	connectionString : DATABASE_URL
-}
+const connectionOptions = {
 
-if (process.env.NODE_ENV == 'production') {
-	config.ssl = { 
-		rejectUnauthorized : false
-	}
-}
+    connectionString: process.env.CONNECTION_STRING,
+    ssl: {
+        rejectUnauthorized: false
+    }
+};
+const db = pgp(connectionOptions);
 
-const db = pgp(config);
+
 
 describe("The FuelConsumption API", function () {
 
@@ -182,7 +182,7 @@ describe("The FuelConsumption API", function () {
         
     });
 
-    after(db.$pool.end)
+    // after(db.$pool.end)
 
     
 });
