@@ -6,12 +6,10 @@ import session from "express-session";
 import dotenv from "dotenv";
 dotenv.config()
 import pgPromise from "pg-promise";
-import FuelConsumptionRoutes from "./fuel-consumptionRoutes.js";
-import FuelConsumption from "./fuel-consumption.js";
+import FuelConsumption from './fuel-consumption.js';
+import FuelConsumptionRoutes from './fuel-consumptionRoutes.js';
 
 const pgp = pgPromise();
-const app = express();
-
 const exphbs = engine({
     defaultLayout: 'main',
     layoutsDir: 'views/layouts'
@@ -25,9 +23,12 @@ const connectionOptions = {
         rejectUnauthorized: false
     }
 };
+
+const app = express();
 const db = pgp(connectionOptions);
 
-
+const fuelConsumption_db = FuelConsumption(db);
+const fuelConsumption = FuelConsumptionRoutes(fuelConsumption_db)
 
 app.engine('handlebars', exphbs);
 app.set('view engine', 'handlebars');
@@ -40,29 +41,20 @@ app.use(session({
     saveUninitialized: true
 }));
 
-app.use(flash());
-
-app.use(express.json());
-
-// Create instances for the db factory function and routes
-const fuelConsumption_db= FuelConsumption(db);
-const fuelConsumption = FuelConsumptionRoutes()
-
-app.get('/addCar', (req, res) => {
-    res.render('addCar'); 
-});
-app.post('/addCar', fuelConsumption.addVehicle);
-
-app.post('/addCar', fuelConsumption.addVehicle);
-app.get('/seeCar', fuelConsumption.vehicles);
-app.get('/seeCar', fuelConsumption.vehicle);
-app.post('/refuel', fuelConsumption.refuel);
-
-
-
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, function () {
-    console.log("App started at port:", PORT)
+app.use(express.json());
+app.use(flash());
+
+app.get('/', (req, res) => {
+    res.redirect('/vehicles'); 
 });
+
+app.post('/vehicle', fuelConsumption.addVehicle);
+app.get('/vehicles', fuelConsumption.vehicles);
+app.get('/vehicle', fuelConsumption.vehicle);
+app.post('/refuel', fuelConsumption.refuel);
+
+app.listen(PORT, () => console.log(`App started on port: ${PORT}`));
+
